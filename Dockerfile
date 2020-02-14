@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-ARG HUGO_VERSION=0.55.2
+ARG HUGO_VERSION=0.64.1
 ENV DOCUMENT_DIR=/hugo-project
 
 RUN apt-get update && apt-get upgrade -y \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get upgrade -y \
       && rm -rf /var/lib/apt/lists/* \
       && rm -rf /tmp/*
 RUN gem install --no-document asciidoctor asciidoctor-revealjs \
-         rouge asciidoctor-confluence asciidoctor-diagram coderay pygments.rb
+         rouge asciidoctor-bibtex asciidoctor-confluence asciidoctor-diagram asciidoctor-rouge coderay pygments.rb
 
 ADD https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz /tmp/hugo.tgz
 
