@@ -9,11 +9,11 @@ node {
     }
 
     stage('Build') {
-        dockerImage = docker.build("rgielen/hugo-ubuntu")
+        dockerImage = docker.build("rhaix/hugo-ubuntu")
     }
 
     stage('Push') {
-        docker.withRegistry('', 'hub.docker.com-rgielen') {
+        docker.withRegistry('', 'hub.docker.com-rhaix') {
             dockerImage.push()
         }
     }
