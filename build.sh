@@ -1,3 +1,7 @@
 #!/bin/bash
 
-docker build -t rhaix/ubuntu-hugo .
+docker build \
+    --build-arg VCS_REF=$(git rev-parse HEAD | cut -c1-10) \
+    --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+    -t rhaix/ubuntu-hugo \
+    .
