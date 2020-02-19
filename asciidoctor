@@ -6,11 +6,28 @@
 echo  "Local Script..."
 if [ -f /usr/local/bin/asciidoctor ]; then
   ad="/usr/local/bin/asciidoctor"
+elif [ -f /Users/rhermanns/.gem/ruby/2.6.0/bin/asciidoctor ]; then
+  ad="/Users/rhermanns/.gem/ruby/2.7.0/bin/asciidoctor"
 else
   ad="/usr/bin/asciidoctor"
 fi
 
-$ad -v -B . -r asciidoctor-diagram -r asciidoctor-html5s -a icons=font -a docinfo=shared -a nofooter -a sectanchors -a experimental=true -a figure-caption! -a source-highlighter=highlightjs -a toc-title! -a stem=mathjax - | sed -E -e "s/img src=\"([^/]+)\"/img src=\"\/diagram\/\1\"/"
+$ad -v -B . \
+  -r asciidoctor-bibtex \
+  -r asciidoctor-diagram \
+  -r asciidoctor-html5s \
+  -r asciidoctor-revealjs \
+  -a icons=font \
+  -a docinfo=shared \
+  -a nofooter \
+  -a sectanchors \
+  -a experimental=true \
+  -a figure-caption! \
+  -a source-highlighter=highlightjs \
+  -a toc-title! \
+  -a stem=mathjax \
+  --trace \
+  - | sed -E -e "s/img src=\"([^/]+)\"/img src=\"\/diagram\/\1\"/"
 
 mkdir -p static/diagram
 
