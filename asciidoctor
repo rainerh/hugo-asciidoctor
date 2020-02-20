@@ -23,6 +23,8 @@ $ad -v -B . \
   -a source-highlighter=highlightjs \
   -a toc-title! \
   -a stem=mathjax \
+  --no-header-footer \
+  --safe \
   --trace \
   - | sed -E -e "s/img src=\"([^/]+)\"/img src=\"\/diagram\/\1\"/"
 
