@@ -6,14 +6,11 @@
 echo  "Local Script..."
 if [ -f /usr/local/bin/asciidoctor ]; then
   ad="/usr/local/bin/asciidoctor"
-elif [ -f /Users/rhermanns/.gem/ruby/2.6.0/bin/asciidoctor ]; then
-  ad="/Users/rhermanns/.gem/ruby/2.7.0/bin/asciidoctor"
 else
   ad="/usr/bin/asciidoctor"
 fi
 
 $ad -v -B . \
-  -r asciidoctor-bibtex \
   -r asciidoctor-diagram \
   -r asciidoctor-html5s \
   -r asciidoctor-revealjs \

@@ -36,36 +36,40 @@ RUN addgroup --system --gid $HUGO_GID $HUGO_USER \
 
 # Install development essentials
 RUN apt-get update && apt-get upgrade -y \
-      && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-           curl \
-           wget \
-           ruby \
-           git \
-           ruby-dev \
-           python3-all \
-           python3-dev \
-           python3-pip \
-           libxml2 \
-           libxml2-dev \
-           libcairo2-dev \
-           libreadline-dev \
-           libpango-1.0-0 \
-           libpango1.0-dev \
-           libpangocairo-1.0-0 \
-           libghc-pango-dev \
-           libgdk-pixbuf2.0-dev \
-           ruby-pango \
-           zlibc \
-           make \
-           cmake \
-           build-essential \
-           bison \
-           flex \
-           graphviz \
-           plantuml \
-      && apt-get clean \
-      && rm -rf /var/lib/apt/lists/* \
-      && rm -rf /tmp/*
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        curl \
+        gnupg \
+        apt-transport-https \
+        lsb-release \
+        wget \
+        ruby \
+        git \
+        ruby-dev \
+        python3-all \
+        python3-dev \
+        python3-pip \
+        libxml2 \
+        libxml2-dev \
+        libcairo2-dev \
+        libreadline-dev \
+        libpango-1.0-0 \
+        libpango1.0-dev \
+        libpangocairo-1.0-0 \
+        libghc-pango-dev \
+        libgdk-pixbuf2.0-dev \
+        ruby-pango \
+        zlibc \
+        make \
+        cmake \
+        build-essential \
+        bison \
+        flex \
+        graphviz \
+        plantuml \
+    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+    && apt install -y nodejs git \  
+    && npm install -g postcss-cli autoprefixer \
+    && npm install -g yarn 
 
 FROM builder AS gem    
 
@@ -121,6 +125,12 @@ RUN mkdir -p ${HUGO_HOME} \
 
 # Add preconfigured asciidoctor wrapper to include custom extensions
 COPY asciidoctor /usr/local/sbin
+
+RUN apt remove -y curl wget gnupg apt-transport-https lsb-release \
+    && apt-get clean \
+    && apt autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
 
 USER $HUGO_USER
 
