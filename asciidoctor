@@ -10,9 +10,9 @@ else
   ad="/usr/bin/asciidoctor"
 fi
 
+   
 $ad -v -B . \
   -r asciidoctor-diagram \
-  -r asciidoctor-html5s \
   -r asciidoctor-revealjs \
   -a icons=font \
   -a docinfo=shared \
@@ -20,7 +20,8 @@ $ad -v -B . \
   -a sectanchors \
   -a experimental=true \
   -a figure-caption! \
-  -a source-highlighter=highlightjs \
+  -a source-highlighter=rouge \
+  -a rouge-style=molokai \
   -a toc-title! \
   -a stem=mathjax \
   --no-header-footer \

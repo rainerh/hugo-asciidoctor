@@ -1,15 +1,32 @@
-FROM ubuntu:18.04 as builder
+FROM ubuntu:bionic 
 
 # Use the Sass/SCSS enabled variant by default
 ARG HUGO_TYPE=_extended 
-ARG HUGO_VERSION=0.64.1
+ARG HUGO_VERSION=0.65.3
 ARG HUGO_DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo"$HUGO_TYPE"_"$HUGO_VERSION"_Linux-64bit.tar.gz"
 ARG MINIFY_DOWNLOAD_URL="https://bin.equinox.io/c/dhgbqpS8Bvy/minify-stable-linux-amd64.tgz"
 ARG BUILD_DATE
 ARG VCS_REF
 
-ARG ASCIIDOCTOR_VERSION=2.0.10
-ARG ASCIIDOCTOR_PDF_VERSION=1.5.0.beta.2
+
+ARG asciidoctor_version=2.0.10
+ARG asciidoctor_confluence_version=0.0.2
+ARG asciidoctor_pdf_version=1.5.2
+ARG asciidoctor_diagram_version=2.0.1
+ARG asciidoctor_epub3_version=1.5.0.alpha.13
+ARG asciidoctor_mathematical_version=0.3.1
+ARG asciidoctor_revealjs_version=3.1.0
+ARG kramdown_asciidoc_version=1.0.1
+
+ENV ASCIIDOCTOR_VERSION=${asciidoctor_version} \
+  ASCIIDOCTOR_CONFLUENCE_VERSION=${asciidoctor_confluence_version} \
+  ASCIIDOCTOR_PDF_VERSION=${asciidoctor_pdf_version} \
+  ASCIIDOCTOR_DIAGRAM_VERSION=${asciidoctor_diagram_version} \
+  ASCIIDOCTOR_EPUB3_VERSION=${asciidoctor_epub3_version} \
+  ASCIIDOCTOR_MATHEMATICAL_VERSION=${asciidoctor_mathematical_version} \
+  ASCIIDOCTOR_REVEALJS_VERSION=${asciidoctor_revealjs_version} \
+  KRAMDOWN_ASCIIDOC_VERSION=${kramdown_asciidoc_version}
+ 
 
 LABEL maintainer hermanns@aixcept.de
 LABEL org.label-schema.build-date=$BUILD_DATE \
@@ -35,17 +52,24 @@ RUN addgroup --system --gid $HUGO_GID $HUGO_USER \
             $HUGO_USER
 
 # Install development essentials
-RUN apt-get update && apt-get upgrade -y \
+RUN apt-get clean && apt-get update && apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         curl \
+        bash \
+        imagemagick \
+        ttf-dejavu \
+        fonts-liberation2 \
+        bash-completion \
+        inotify-tools \
         gnupg \
         apt-transport-https \
         lsb-release \
         wget \
-        ruby \
+        ruby-full \
         git \
         ruby-dev \
         python3-all \
+        python3-setuptools \
         python3-dev \
         python3-pip \
         libxml2 \
@@ -58,6 +82,7 @@ RUN apt-get update && apt-get upgrade -y \
         libghc-pango-dev \
         libgdk-pixbuf2.0-dev \
         ruby-pango \
+        tzdata \
         zlibc \
         make \
         cmake \
@@ -65,13 +90,12 @@ RUN apt-get update && apt-get upgrade -y \
         bison \
         flex \
         graphviz \
-        plantuml \
-    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
-    && apt install -y nodejs git \  
+        plantuml
+
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+    && apt install -y nodejs \  
     && npm install -g postcss-cli autoprefixer \
     && npm install -g yarn 
-
-FROM builder AS gem    
 
 # Installing Ruby Gems needed in the image
 # including asciidoctor itself
@@ -79,27 +103,26 @@ RUN gem install --no-document \
         rake \
         bundler \
         "asciidoctor:${ASCIIDOCTOR_VERSION}" \
-        asciidoctor-confluence \
-        asciidoctor-diagram \
-        asciidoctor-epub3:1.5.0.alpha.9 \
-        asciidoctor-bibtex \
-        asciidoctor-mathematical \
+        "asciidoctor-confluence:${ASCIIDOCTOR_CONFLUENCE_VERSION}" \
+        "asciidoctor-diagram:${ASCIIDOCTOR_DIAGRAM_VERSION}" \
+        "asciidoctor-epub3:${ASCIIDOCTOR_EPUB3_VERSION}" \
+        "asciidoctor-mathematical:${ASCIIDOCTOR_MATHEMATICAL_VERSION}" \
         asciimath \
         "asciidoctor-pdf:${ASCIIDOCTOR_PDF_VERSION}" \
-        asciidoctor-revealjs \
-        asciidoctor-html5s \
-        coderay \
-        epubcheck:3.0.1 \
-        haml \
-        kindlegen:3.0.3 \
+        "asciidoctor-revealjs:${ASCIIDOCTOR_REVEALJS_VERSION}" \
         pygments.rb \
-        rake \
+        rouge \
+        coderay \
+        epubcheck-ruby:4.2.2.0 \
+        haml \
+        kindlegen:3.0.5 \
+        "kramdown-asciidoc:${KRAMDOWN_ASCIIDOC_VERSION}" \
         rouge \
         slim \
         thread_safe \
         tilt
 
-FROM gem AS pip
+        
 
 # Installing Python dependencies for additional
 # functionnalities as diagrams or syntax highligthing
@@ -112,8 +135,6 @@ RUN pip3 install --no-cache --upgrade pip setuptools wheel \
     Pygments \
     seqdiag 
 
-FROM pip AS hugo
-
 # Install HUGO
 RUN mkdir -p ${HUGO_HOME} \
     && mkdir -p /usr/local/src \
@@ -125,12 +146,12 @@ RUN mkdir -p ${HUGO_HOME} \
 
 # Add preconfigured asciidoctor wrapper to include custom extensions
 COPY asciidoctor /usr/local/sbin
-
 RUN apt remove -y curl wget gnupg apt-transport-https lsb-release \
     && apt-get clean \
     && apt autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/*
+
 
 USER $HUGO_USER
 
