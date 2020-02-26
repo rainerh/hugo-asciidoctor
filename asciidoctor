@@ -3,14 +3,12 @@
 # Original source: 
 # https://zipproth.de/cheat-sheets/hugo-asciidoctor/
 
-echo  "Local Script..."
 if [ -f /usr/local/bin/asciidoctor ]; then
   ad="/usr/local/bin/asciidoctor"
 else
   ad="/usr/bin/asciidoctor"
 fi
 
-   
 $ad -v -B . \
   -r asciidoctor-diagram \
   -r asciidoctor-revealjs \
