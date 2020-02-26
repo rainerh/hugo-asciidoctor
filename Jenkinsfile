@@ -9,7 +9,7 @@ node {
     }
 
     stage('Build') {
-        dockerImage = docker.build("rhaix/hugo-ubuntu")
+        dockerImage = docker.build("rhaix/hugo-asciidoctor")
     }
 
     stage('Push') {
