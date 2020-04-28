@@ -1,8 +1,17 @@
-FROM rhaix/ubuntu-base 
+FROM rhaix/hugo
 
 ARG BUILD_DATE
 ARG VCS_REF
 
+MAINTAINER Rainer Hermanns <rainerh@gmail.com>
+LABEL org.label-schema.build-date=$BUILD_DATE \
+    org.label-schema.docker.dockerfile="/Dockerfile.asciidoctor" \
+    org.label-schema.license="MIT" \
+    org.label-schema.name="Docker Hugo (extended) with Asciidoctor support based on Ubuntu" \
+    org.label-schema.url="https://github.com/rainerh/hugo-asciidoctor/" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.vcs-url="https://github.com/rainerh/hugo-asciidoctor.git" \
+    org.label-schema.vcs-type="Git"
 
 ARG asciidoctor_version=2.0.10
 ARG asciidoctor_confluence_version=0.0.2
@@ -10,7 +19,7 @@ ARG asciidoctor_pdf_version=1.5.2
 ARG asciidoctor_diagram_version=2.0.1
 ARG asciidoctor_epub3_version=1.5.0.alpha.13
 ARG asciidoctor_mathematical_version=0.3.1
-ARG asciidoctor_revealjs_version=3.1.0
+ARG asciidoctor_revealjs_version=4.0.1
 ARG kramdown_asciidoc_version=1.0.1
 
 ENV ASCIIDOCTOR_VERSION=${asciidoctor_version} \
@@ -21,7 +30,9 @@ ENV ASCIIDOCTOR_VERSION=${asciidoctor_version} \
   ASCIIDOCTOR_MATHEMATICAL_VERSION=${asciidoctor_mathematical_version} \
   ASCIIDOCTOR_REVEALJS_VERSION=${asciidoctor_revealjs_version} \
   KRAMDOWN_ASCIIDOC_VERSION=${kramdown_asciidoc_version}
- 
+
+USER root
+
 # Installing Ruby Gems needed in the image
 # including asciidoctor itself
 RUN gem install --no-document \
@@ -40,16 +51,18 @@ RUN gem install --no-document \
         coderay \
         epubcheck-ruby:4.2.2.0 \
         haml \
-        kindlegen:3.0.5 \
         "kramdown-asciidoc:${KRAMDOWN_ASCIIDOC_VERSION}" \
         rouge \
         slim \
         thread_safe \
         tilt
 
+RUN gem install --no-document --backtrace --verbose --debug \
+        kindlegen:3.0.4
+
 
 # Installing Python dependencies for additional
-# functionnalities as diagrams or syntax highligthing
+# functionalities as diagrams or syntax highligthing
 RUN pip3 install --no-cache --upgrade pip setuptools wheel \
   && if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
   && pip install --no-cache-dir \
@@ -61,3 +74,16 @@ RUN pip3 install --no-cache --upgrade pip setuptools wheel \
 
 # Add preconfigured asciidoctor wrapper to include custom extensions
 COPY asciidoctor /usr/local/sbin
+
+# Setup user and group
+ENV HUGO_USER=hugo \
+    HUGO_UID=1000 \
+    HUGO_GID=1000 \
+    HUGO_HOME=/hugo
+
+USER $HUGO_USER
+
+WORKDIR $HUGO_HOME
+
+VOLUME ${HUGO_HOME}
+
