@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM ubuntu:bionic
+FROM ubuntu:bionic-20200403
 
 # Use the Sass/SCSS enabled variant by default
 ARG HUGO_TYPE=_extended
@@ -30,91 +30,91 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-type="Git"
 
 # Install development essentials
-RUN apt-get clean && apt-get update && apt-get upgrade -y \
+RUN apt-get clean \
+    && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        curl \
-        bash \
-        imagemagick \
-        ttf-dejavu \
-        fonts-liberation2 \
-        bash-completion \
-        inotify-tools \
-        gnupg \
         apt-transport-https \
-        lsb-release \
-        wget \
-        ruby-full \
+        bash \
+        bash-completion \
+        bison \
+        build-essential \
+        curl \
+        cmake \
+        flex \
+        fonts-liberation2 \
         git \
-        ruby \
-        ruby-dev \
+        gnupg \
+        graphviz \
+        imagemagick \
+        inotify-tools \
+        libreadline-dev \
+        libcairo2-dev \
+        libghc-pango-dev \
+        libgdk-pixbuf2.0-dev \
+        libpango-1.0-0 \
+        libpango1.0-dev \
+        libpangocairo-1.0-0 \
+        libxml2 \
+        libxml2-dev \
+        lsb-release \
+        make \
+        ttf-dejavu \
         openjdk-11-jre \
+        plantuml \
         python3-all \
         python3-setuptools \
         python3-dev \
         python3-pip \
-        libxml2 \
-        libxml2-dev \
-        libcairo2-dev \
-        libreadline-dev \
-        libpango-1.0-0 \
-        libpango1.0-dev \
-        libpangocairo-1.0-0 \
-        libghc-pango-dev \
-        libgdk-pixbuf2.0-dev \
+        ruby \
+        ruby-dev \
         ruby-pango \
         tzdata \
-        zlibc \
-        make \
-        cmake \
-        build-essential \
-        bison \
-        flex \
-        graphviz \
-        plantuml
+        wget \
+        zlibc
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+    && apt-get update \
     && apt install -y nodejs \
     && npm install -g postcss-cli autoprefixer \
     && npm install -g yarn
 
+# Setup user and group
+ENV HUGO_USER=hugo \
+    HUGO_UID=1000 \
+    HUGO_GID=1000 \
+    HUGO_HOME=/hugo
+
+RUN addgroup --system --gid $HUGO_GID $HUGO_USER \
+      && adduser --system  \
+            --gid $HUGO_GID \
+            --home $HUGO_HOME \
+            --uid $HUGO_UID \
+            $HUGO_USER
 
 # Installing Ruby Gems needed in the image
 # including asciidoctor itself
-
-ENV ASCIIDOCTOR_VERSION=${asciidoctor_version} \
-  ASCIIDOCTOR_CONFLUENCE_VERSION=${asciidoctor_confluence_version} \
-  ASCIIDOCTOR_PDF_VERSION=${asciidoctor_pdf_version} \
-  ASCIIDOCTOR_DIAGRAM_VERSION=${asciidoctor_diagram_version} \
-  ASCIIDOCTOR_EPUB3_VERSION=${asciidoctor_epub3_version} \
-  ASCIIDOCTOR_MATHEMATICAL_VERSION=${asciidoctor_mathematical_version} \
-  ASCIIDOCTOR_REVEALJS_VERSION=${asciidoctor_revealjs_version} \
-  KRAMDOWN_ASCIIDOC_VERSION=${kramdown_asciidoc_version}
-
 RUN gem install --no-document \
         rake \
         bundler \
-        "asciidoctor:${ASCIIDOCTOR_VERSION}" \
-        "asciidoctor-confluence:${ASCIIDOCTOR_CONFLUENCE_VERSION}" \
-        "asciidoctor-diagram:${ASCIIDOCTOR_DIAGRAM_VERSION}" \
-        "asciidoctor-epub3:${ASCIIDOCTOR_EPUB3_VERSION}" \
-        "asciidoctor-mathematical:${ASCIIDOCTOR_MATHEMATICAL_VERSION}" \
+        "asciidoctor:${asciidoctor_version}" \
+        "asciidoctor-confluence:${asciidoctor_confluence_version}" \
+        "asciidoctor-diagram:${asciidoctor_diagram_version}" \
+        "asciidoctor-epub3:${asciidoctor_epub3_version}" \
+        "asciidoctor-mathematical:${asciidoctor_mathematical_version}" \
         asciimath \
-        "asciidoctor-pdf:${ASCIIDOCTOR_PDF_VERSION}" \
-        "asciidoctor-revealjs:${ASCIIDOCTOR_REVEALJS_VERSION}" \
+        "asciidoctor-pdf:${asciidoctor_pdf_version}" \
+        "asciidoctor-revealjs:${asciidoctor_revealjs_version}" \
         pygments.rb \
         rouge \
         coderay \
         epubcheck-ruby:4.2.2.0 \
         haml \
-        "kramdown-asciidoc:${KRAMDOWN_ASCIIDOC_VERSION}" \
+        "kramdown-asciidoc:${kramdown_asciidoc_version}" \
         rouge \
         slim \
         thread_safe \
-        tilt
-
-RUN gem install --no-document --backtrace --verbose --debug \
+        tilt \
         kindlegen:3.0.4
-
 
 # Installing Python dependencies for additional
 # functionalities as diagrams or syntax highligthing
@@ -130,19 +130,6 @@ RUN pip3 install --no-cache --upgrade pip setuptools wheel \
 # Add preconfigured asciidoctor wrapper to include custom extensions
 COPY asciidoctor /usr/local/sbin
 
-# Setup user and group
-ENV HUGO_USER=hugo \
-    HUGO_UID=1000 \
-    HUGO_GID=1000 \
-    HUGO_HOME=/hugo
-
-RUN addgroup --system --gid $HUGO_GID $HUGO_USER \
-      && adduser --system  \
-            --gid $HUGO_GID \
-            --home $HUGO_HOME \
-            --uid $HUGO_UID \
-            $HUGO_USER
-
 # Install HUGO
 RUN mkdir -p ${HUGO_HOME} \
     && mkdir -p /usr/local/src \
@@ -152,6 +139,7 @@ RUN mkdir -p ${HUGO_HOME} \
     && curl -L "$MINIFY_DOWNLOAD_URL" | tar -xz \
     && mv minify /usr/local/bin/
 
+# Cleanup
 RUN apt remove -y curl wget gnupg apt-transport-https lsb-release \
     && apt-get clean \
     && apt autoremove -y \

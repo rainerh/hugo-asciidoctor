@@ -1,4 +1,4 @@
-= hugo-ubuntu Docker image
+= hugo-asciidoctor Docker image
 
 A Hugo-AsciiDoctor toolchain based on Ubuntu.
 
@@ -7,14 +7,14 @@ A Hugo-AsciiDoctor toolchain based on Ubuntu.
     docker build \
         --build-arg VCS_REF=$(git rev-parse HEAD | cut -c1-10) \
         --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
-        -t rhaix/ubuntu-hugo \
+        -t rhaix/hugo-asciidoctor \
         .
 
 or run the `build.sh` shell script.
 
 == Running the container
 
-    docker run --rm --name "hugo" -p 1313:1313 -P -v $(pwd):/hugo rhaix/ubuntu-hugo
+    docker run --rm --name "hugo" -p 1313:1313 -P -v $(pwd):/hugo rhaix/hugo-asciidoctor
 
 - expose port 1313 on localhost
 - set container name to 'hugo'

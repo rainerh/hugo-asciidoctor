@@ -10,7 +10,7 @@ node {
 
     stage('Build') {
         hugoDockerImage = docker.build("rhaix/hugo", "-f Dockerfile .")
-        asciidoctorDockerImage = docker.build("rhaix/hugo-asciidoctor", "-f Dockerfile.asciidoctor .")
+        asciidoctorDockerImage = docker.build("rhaix/hugo-asciidoctor", "-f Dockerfile .")
     }
 
     stage('Push') {
