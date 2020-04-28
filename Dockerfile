@@ -19,8 +19,8 @@ ARG kramdown_asciidoc_version=1.0.1
 ARG BUILD_DATE
 ARG VCS_REF
 
-MAINTAINER Rainer Hermanns <rainerh@gmail.com>
-LABEL org.label-schema.build-date=$BUILD_DATE \
+LABEL maintainer="Rainer Hermanns <rainerh@gmail.com>" \
+    org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.docker.dockerfile="/Dockerfile" \
     org.label-schema.license="MIT" \
     org.label-schema.name="Docker Hugo (extended) based on Ubuntu" \
@@ -30,8 +30,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-type="Git"
 
 # Install development essentials
-RUN apt-get clean \
-    && apt-get update \
+RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         apt-transport-https \
         bash \
@@ -70,12 +69,13 @@ RUN apt-get clean \
         ruby-pango \
         tzdata \
         wget \
-        zlibc
-
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
-    && apt-get update \
+        zlibc \
+    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     && apt install -y nodejs \
-    && npm install -g postcss-cli autoprefixer \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g postcss-cli autoprefixer \
     && npm install -g yarn
 
 # Setup user and group
@@ -140,9 +140,9 @@ RUN mkdir -p ${HUGO_HOME} \
     && mv minify /usr/local/bin/
 
 # Cleanup
-RUN apt remove -y curl wget gnupg apt-transport-https lsb-release \
+RUN apt-get remove -y curl wget gnupg apt-transport-https lsb-release \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/*
 
