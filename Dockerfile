@@ -3,7 +3,7 @@ FROM ubuntu:bionic-20200403
 
 # Use the Sass/SCSS enabled variant by default
 ARG HUGO_TYPE=_extended
-ARG HUGO_VERSION=0.69.2
+ARG HUGO_VERSION=0.71.1
 ARG HUGO_DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo"$HUGO_TYPE"_"$HUGO_VERSION"_Linux-64bit.tar.gz"
 ARG MINIFY_DOWNLOAD_URL="https://bin.equinox.io/c/dhgbqpS8Bvy/minify-stable-linux-amd64.tgz"
 
